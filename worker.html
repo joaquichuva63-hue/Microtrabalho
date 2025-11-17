@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Área do Trabalhador — MicroTrabalho</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Área do Trabalhador</h1>
+    <nav><a href="index.html">Voltar</a></nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Tarefas disponíveis</h2>
+      <div id="task-list">Carregando...</div>
+    </section>
+
+    <section class="card">
+      <h2>Minhas submissões</h2>
+      <div id="subs-list">Carregando...</div>
+    </section>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const token = localStorage.getItem('mt_token');
+    async function loadTasks(){
+      const res = await fetch('/api/tasks');
+      const tasks = await res.json();
+      document.getElementById('task-list').innerHTML = tasks.map(t=>`<div class="task"><h3>${t.title}</h3><p>${t.description}</p><p>Pagamento: ${t.reward} MT</p>
+        <button onclick="startTask(${t.id})" class="btn">Iniciar / Enviar prova</button></div>`).join('');
+    }
+    async function loadSubs(){
+      if(!token) return document.getElementById('subs-list').innerHTML = '<p>Faça login para ver suas submissões.</p>';
+      const res = await fetch('/api/submissions/mine',{headers:{'Authorization':'Bearer '+token}});
+      const subs = await res.json();
+      document.getElementById('subs-list').innerHTML = subs.length? subs.map(s=>`<div><strong>${s.task_title}</strong> — ${s.status}</div>`).join('') : '<p>Sem submissões</p>';
+    }
+    async function startTask(taskId){
+      if(!token){ alert('Faça login para começar a tarefa'); return; }
+      const evidence = prompt('Cole aqui o link ou descrição da evidência (ex: URL da foto):');
+      if(!evidence) return;
+      const res = await fetch('/api/submissions', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body: JSON.stringify({taskId, evidence})
+      });
+      const data = await res.json();
+      alert(data.message || JSON.stringify(data));
+      loadSubs();
+    }
+    loadTasks();
+    loadSubs();
+  </script>
+</body>
+</html>

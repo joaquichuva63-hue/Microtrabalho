@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Entrar — MicroTrabalho</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>MicroTrabalho</h1>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Entrar</h2>
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Senha" required />
+        <button type="submit" class="btn">Entrar</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Registrar</h2>
+      <form id="registerForm">
+        <input type="text" id="name" placeholder="Nome" required />
+        <input type="email" id="r_email" placeholder="Email" required />
+        <input type="password" id="r_password" placeholder="Senha" required />
+        <select id="role">
+          <option value="worker">Trabalhador</option>
+          <option value="client">Cliente</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <button type="submit" class="btn">Registrar</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('r_email').value,
+        password: document.getElementById('r_password').value,
+        role: document.getElementById('role').value
+      };
+      const res = await fetch('/api/auth/register', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+      const data = await res.json();
+      alert(data.message || JSON.stringify(data));
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const payload = {
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+      };
+      const res = await fetch('/api/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+      const data = await res.json();
+      if(data.token){
+        localStorage.setItem('mt_token', data.token);
+        alert('Entrou com sucesso! Agora visite Painel.');
+      } else {
+        alert(data.message || 'Erro ao entrar');
+      }
+    });
+  </script>
+</body>
+</html>

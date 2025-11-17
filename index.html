@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MicroTrabalho — Home</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>MicroTrabalho</h1>
+    <nav>
+      <a href="login.html">Entrar / Cadastrar</a>
+      <a href="worker.html">Área do Trabalhador</a>
+      <a href="admin.html">Painel Admin</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>O que é</h2>
+      <p>Plataforma para publicar micro-tarefas e pagar quem as conclui.</p>
+      <p>Exemplo rápido: publicar tarefas simples, trabalhadores se inscrevem, enviam evidência e recebem pagamento.</p>
+    </section>
+
+    <section class="card" id="tasks">
+      <h2>Tarefas disponíveis</h2>
+      <div id="task-list">Carregando tarefas...</div>
+    </section>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Load tasks from API (public)
+    fetch('/api/tasks')
+      .then(r=>r.json())
+      .then(data=>{
+        const list = document.getElementById('task-list');
+        if(!data || data.length===0) list.innerHTML = '<p>Sem tarefas agora.</p>';
+        else list.innerHTML = data.map(t=>`<div class="task"><h3>${t.title}</h3><p>${t.description}</p><p>Pagamento: ${t.reward} MT</p></div>`).join('');
+      })
+      .catch(()=>{ document.getElementById('task-list').innerHTML = '<p>Erro ao carregar tarefas.</p>' });
+  </script>
+</body>
+</html>
